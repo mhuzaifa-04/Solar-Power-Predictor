@@ -2,25 +2,29 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Prevent interactive prompts during apt installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Clean package manager cache and install essential build tools cleanly
+RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    software-properties-common \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python libraries
+# Copy and install Python packages
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy application code and model
+# Copy application source code and models
 COPY . .
 
-# Expose port
+# Expose port for Streamlit
 EXPOSE 8501
 
-# Healthcheck to monitor app state
-HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+# Container health check
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health || exit 1
 
-# Entrypoint execution
+# Execute Streamlit server
 ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
