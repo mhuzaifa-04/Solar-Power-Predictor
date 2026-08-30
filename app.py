@@ -25,21 +25,30 @@ def apply_custom_ui():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+    /* Global Typography & Background */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
     
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0b0f19 100%) !important;
         background-attachment: fixed;
+    }
+
+    /* Headings & Text Clarity */
+    h1, h2, h3, h4, span, label, p {
+        color: #f8fafc !important;
+    }
+    .stCaption {
+        color: #94a3b8 !important;
     }
 
     /* Glassmorphism Cards */
     .glass-card {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(30, 41, 59, 0.7) !important;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 14px;
         padding: 1.25rem;
         margin-bottom: 1rem;
@@ -47,57 +56,57 @@ def apply_custom_ui():
         transition: transform 0.2s ease, border 0.2s ease;
     }
     .glass-card:hover {
-        border: 1px solid rgba(99, 102, 241, 0.4);
+        border: 1px solid rgba(99, 102, 241, 0.5) !important;
         transform: translateY(-2px);
     }
 
-    /* Standard Metric Overrides */
-    div[data-testid="stMetric"] {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    div[data-testid="stMetricLabel"] {
+    /* Fix Streamlit Navigation Tabs */
+    button[data-baseweb="tab"] {
         color: #94a3b8 !important;
-        font-size: 0.875rem !important;
         font-weight: 500 !important;
+        font-size: 0.95rem !important;
+        background-color: transparent !important;
+        border-radius: 8px 8px 0 0 !important;
+        padding: 8px 16px !important;
     }
-    div[data-testid="stMetricValue"] {
-        color: #f8fafc !important;
+    button[aria-selected="true"] {
+        color: #ffffff !important;
         font-weight: 700 !important;
+        border-bottom: 3px solid #6366f1 !important;
     }
 
-    /* Gradient Buttons */
+    /* Input Field Styling */
+    div[data-baseweb="input"], div[data-baseweb="select"] {
+        background-color: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+    }
+
+    /* Button Styling */
     .stButton > button {
         width: 100%;
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: #ffffff;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.3px !important;
+        box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39) !important;
     }
     .stButton > button:hover {
-        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-        box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.55);
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
         transform: translateY(-1px);
     }
 
-    /* Sidebar Customization */
+    /* Sidebar Clean styling */
     section[data-testid="stSidebar"] {
-        background-color: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(16px);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background-color: #0f172a !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    #MainMenu, footer, header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -225,7 +234,7 @@ def generate_pdf_report(client_name, kw_rating, location, predicted_power, daily
 st.title("☀️ Solar AI Intelligence & Financial Forecasting")
 st.caption("Powered by XGBoost Machine Learning Engine")
 
-# 5. Sidebar Controls & Mode Selector
+# 5. Sidebar Controls & Developer Signature
 with st.sidebar:
     st.header("🎛️ Input Mode")
     input_mode = st.radio("Choose Weather Input Source:", ["Manual Sliders", "🌐 Live City Weather API"])
@@ -263,6 +272,28 @@ with st.sidebar:
     st.header("💰 Tariff & Financial Settings")
     currency = st.selectbox("Currency Unit", ["$", "₹", "€", "£"], index=1)
     tariff_rate = st.number_input(f"Utility Tariff ({currency}/kWh)", min_value=0.01, value=8.0 if currency=="₹" else 0.15, step=0.5)
+
+    # --- AUTHOR & SOCIAL LINKS ---
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; padding: 0.5rem 0;">
+        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 500;">
+            Developed by <span style="color: #6366f1; font-weight: 700;">Mohammad Huzaifa</span> ✨
+        </p>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 0.6rem;">
+            <a href="https://www.linkedin.com/in/mhuzaifa04" target="_blank" style="text-decoration: none;">
+                <span style="background: rgba(99, 102, 241, 0.15); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
+                    💼 LinkedIn
+                </span>
+            </a>
+            <a href="https://github.com/mhuzaifa-04" target="_blank" style="text-decoration: none;">
+                <span style="background: rgba(255, 255, 255, 0.08); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
+                    🐙 GitHub
+                </span>
+            </a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # 6. Model Prediction & Computations
 temp_diff = mod_temp - amb_temp
