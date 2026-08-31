@@ -19,110 +19,394 @@ st.set_page_config(
     layout="wide"
 )
 
-# 2. Advanced Glassmorphism CSS Injector
-def apply_custom_ui():
-    st.markdown("""
+# Initialize Theme State
+if "theme" not in st.session_state:
+    st.session_state.theme = "Light Mode"
+
+# 2. Dynamic Theme CSS Injector
+def apply_custom_ui(theme_mode):
+    if theme_mode == "Light Mode":
+        bg_css = "background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%) !important;"
+        text_color = "#0f172a"
+        caption_color = "#334155"
+        card_bg = "rgba(255, 255, 255, 0.85)"
+        card_border = "rgba(148, 163, 184, 0.4)"
+        card_hover = "rgba(99, 102, 241, 0.6)"
+        card_shadow = "0 10px 30px -5px rgba(15, 23, 42, 0.08)"
+        tab_bg = "rgba(255, 255, 255, 0.6)"
+        tab_color = "#1e293b"
+        input_bg = "rgba(255, 255, 255, 0.95)"
+        sidebar_bg = "#f1f5f9"
+        sidebar_border = "rgba(148, 163, 184, 0.3)"
+        navbar_bg = "rgba(255, 255, 255, 0.85)"
+        kpi_title_color = "#475569"
+        kpi_subtext_color = "#64748b"
+        uploader_css = """
+        section[data-testid="stFileUploaderDropzone"] {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(148, 163, 184, 0.8) !important;
+            color: #0f172a !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
+        }
+        section[data-testid="stFileUploaderDropzone"] > div,
+        section[data-testid="stFileUploaderDropzone"] *,
+        section[data-testid="stFileUploaderDropzone"] button,
+        section[data-testid="stFileUploaderDropzone"] span,
+        section[data-testid="stFileUploaderDropzone"] p {
+            color: #0f172a !important;
+        }
+        section[data-testid="stFileUploaderDropzone"] button {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.35) !important;
+        }
+        """
+    else:  # Dark Mode
+        bg_css = "background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;"
+        text_color = "#f8fafc"
+        caption_color = "#cbd5e1"
+        card_bg = "rgba(30, 41, 59, 0.85)"
+        card_border = "rgba(255, 255, 255, 0.12)"
+        card_hover = "rgba(99, 102, 241, 0.6)"
+        card_shadow = "0 8px 24px 0 rgba(0, 0, 0, 0.25)"
+        tab_bg = "rgba(51, 65, 85, 0.6)"
+        tab_color = "#cbd5e1"
+        input_bg = "#1e293b"
+        sidebar_bg = "#0f172a"
+        sidebar_border = "rgba(0, 0, 0, 0.1)"
+        navbar_bg = "rgba(30, 41, 59, 0.9)"
+        kpi_title_color = "rgba(248, 250, 252, 0.8)"
+        kpi_subtext_color = "rgba(248, 250, 252, 0.6)"
+        uploader_css = """
+        section[data-testid="stFileUploaderDropzone"] {
+            background: rgba(15, 23, 42, 0.82) !important;
+            border: 1px solid rgba(148, 163, 184, 0.45) !important;
+            color: #f8fafc !important;
+            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18) !important;
+        }
+        section[data-testid="stFileUploaderDropzone"] > div,
+        section[data-testid="stFileUploaderDropzone"] *,
+        section[data-testid="stFileUploaderDropzone"] button,
+        section[data-testid="stFileUploaderDropzone"] span,
+        section[data-testid="stFileUploaderDropzone"] p {
+            color: #f8fafc !important;
+        }
+        section[data-testid="stFileUploaderDropzone"] button {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(96, 165, 250, 0.45) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35) !important;
+        }
+        """
+
+    st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
 
-    /* Global Typography & Background */
-    html, body, [class*="css"] {
+    html, body, [class*="css"] {{
         font-family: 'Inter', sans-serif;
-    }
+    }}
     
-    .stApp {
-        background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0b0f19 100%) !important;
+    .stApp {{
+        {bg_css}
         background-attachment: fixed;
-    }
+    }}
 
-    /* Headings & Text Clarity */
-    h1, h2, h3, h4, span, label, p {
-        color: #f8fafc !important;
-    }
-    .stCaption {
-        color: #94a3b8 !important;
-    }
+    /* Universal Text Contrast Fixes */
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp span, .stApp label, .stApp p, .stMarkdown {{
+        color: {text_color} !important;
+    }}
+    
+    .stCaption, [data-testid="stCaptionContainer"] p {{
+        color: {caption_color} !important;
+    }}
+
+    /* Form & Input Controls Text Contrast */
+    div[data-baseweb="select"] span, div[data-baseweb="input"] input {{
+        color: {text_color} !important;
+    }}
+    
+    div[data-baseweb="input"] {{
+        background-color: {input_bg} !important;
+        border: 1px solid {card_border} !important;
+        border-radius: 8px !important;
+    }}
+
+    {uploader_css}
+
+    /* Navbar Container & Mobile Adaptations */
+    .navbar-container {{
+        background: {navbar_bg};
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid {card_border};
+        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: {card_shadow};
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }}
+
+    .navbar-brand {{
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: {text_color} !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }}
+
+    .navbar-links {{
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }}
+    
+    .navbar-link {{
+        color: {caption_color} !important;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }}
+    
+    .navbar-link:hover {{
+        color: #6366f1 !important;
+    }}
+    
+    .navbar-badge {{
+        background: rgba(99, 102, 241, 0.15);
+        color: #4f46e5 !important;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }}
+
+    div[data-testid="column"] {{
+        display: flex;
+        align-items: center;
+    }}
+
+    /* Navbar Column Button Styling */
+    div[data-testid="column"]:nth-child(3) button {{
+        background: rgba(99, 102, 241, 0.15) !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        color: {text_color} !important;
+        border-radius: 20px !important;
+        padding: 4px 14px !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        height: auto !important;
+        min-height: 0px !important;
+        box-shadow: none !important;
+        margin-left: auto !important;
+        width: auto !important;
+        transition: all 0.2s ease !important;
+    }}
+
+    div[data-testid="column"]:nth-child(3) button:hover {{
+        background: #6366f1 !important;
+        color: #ffffff !important;
+        border-color: #6366f1 !important;
+    }}
 
     /* Glassmorphism Cards */
-    .glass-card {
-        background: rgba(30, 41, 59, 0.7) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    .glass-card {{
+        background: {card_bg} !important;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid {card_border} !important;
         border-radius: 14px;
         padding: 1.25rem;
         margin-bottom: 1rem;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        box-shadow: {card_shadow};
         transition: transform 0.2s ease, border 0.2s ease;
-    }
-    .glass-card:hover {
-        border: 1px solid rgba(99, 102, 241, 0.5) !important;
+    }}
+    .glass-card:hover {{
+        border: 1px solid {card_hover} !important;
         transform: translateY(-2px);
-    }
+    }}
 
-    /* Fix Streamlit Navigation Tabs */
-    button[data-baseweb="tab"] {
-        color: #94a3b8 !important;
-        font-weight: 500 !important;
-        font-size: 0.95rem !important;
-        background-color: transparent !important;
-        border-radius: 8px 8px 0 0 !important;
-        padding: 8px 16px !important;
-    }
-    button[aria-selected="true"] {
+    /* KPI Text Classes */
+    .kpi-title {{
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        color: {kpi_title_color} !important;
+    }}
+    .kpi-subtext {{
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: {kpi_subtext_color} !important;
+    }}
+
+    /* Tab Navigation Responsive */
+    div[data-baseweb="tab-list"] {{
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        max-width: 100% !important;
+    }}
+    
+    button[data-baseweb="tab"] {{
+        color: {tab_color} !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        background-color: {tab_bg} !important;
+        border: 1px solid {card_border} !important;
+        border-radius: 8px !important;
+        padding: 8px 14px !important;
+        white-space: nowrap;
+    }}
+    
+    button[aria-selected="true"] {{
         color: #ffffff !important;
         font-weight: 700 !important;
-        border-bottom: 3px solid #6366f1 !important;
-    }
-
-    /* Input Field Styling */
-    div[data-baseweb="input"], div[data-baseweb="select"] {
-        background-color: rgba(15, 23, 42, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        border-radius: 8px !important;
+        background-color: #6366f1 !important;
+        border: 1px solid #6366f1 !important;
+    }}
+    
+    button[aria-selected="true"] p {{
         color: #ffffff !important;
-    }
+    }}
 
-    /* Button Styling */
-    .stButton > button {
+    /* Primary Buttons */
+    .stButton > button {{
         width: 100%;
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         color: #ffffff !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.3px !important;
-        box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39) !important;
-    }
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
-        transform: translateY(-1px);
-    }
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.35);
+    }}
 
-    /* Sidebar Clean styling */
-    section[data-testid="stSidebar"] {
-        background-color: #0f172a !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-    }
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {{
+        background-color: {sidebar_bg} !important;
+        border-right: 1px solid {sidebar_border} !important;
+        visibility: visible !important;
+        display: block !important;
+    }}
 
-    #MainMenu, footer, header {visibility: hidden;}
+    header[data-testid="stHeader"] {{
+        background-color: transparent !important;
+    }}
+    
+    /* Custom Glassmorphism Footer */
+    .custom-footer {{
+        margin-top: 3rem;
+        padding: 2rem 1rem 1.5rem 1rem;
+        background: {navbar_bg};
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-top: 1px solid {card_border};
+        border-radius: 16px 16px 0 0;
+        text-align: center;
+        width: 100%;
+    }}
+
+    .footer-content {{
+        max-width: 800px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }}
+
+    .footer-brand {{
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: {text_color} !important;
+    }}
+
+    .footer-tagline {{
+        font-size: 0.85rem;
+        color: {caption_color} !important;
+        margin: 0 !important;
+    }}
+
+    .footer-links {{
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 0.25rem;
+    }}
+
+    .footer-link {{
+        color: {text_color} !important;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }}
+
+    .footer-link:hover {{
+        color: #6366f1 !important;
+    }}
+
+    .footer-dot {{
+        color: {caption_color};
+        font-size: 0.8rem;
+    }}
+
+    .footer-bottom {{
+        font-size: 0.78rem;
+        color: {caption_color} !important;
+        margin-top: 0.5rem;
+        border-top: 1px solid {card_border};
+        padding-top: 0.75rem;
+        width: 100%;
+    }}
+
+    /* Media Queries for Mobile Responsiveness */
+    @media (max-width: 768px) {{
+        .navbar-brand {{
+            font-size: 1rem;
+        }}
+        .navbar-badge {{
+            display: none;
+        }}
+        div[data-testid="column"] {{
+            width: 100% !important;
+            margin-bottom: 0.5rem;
+        }}
+        button[data-baseweb="tab"] {{
+            padding: 6px 10px !important;
+            font-size: 0.75rem !important;
+        }}
+        .glass-card {{
+            padding: 0.9rem;
+        }}
+    }}
+    
+    #MainMenu, footer[data-testid="stFooter"] {{
+        visibility: hidden;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
-apply_custom_ui()
-
-# KPI Card Helper Function
+# Helper function to render KPI Cards
 def render_kpi_card(title, value, subtext="", status_color="#6366f1"):
     st.markdown(f"""
     <div class="glass-card">
-        <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.4rem;">{title}</div>
+        <div class="kpi-title">{title}</div>
         <div style="font-size: 1.8rem; font-weight: 700; color: {status_color}; margin-bottom: 0.4rem;">{value}</div>
-        <div style="color: #64748b; font-size: 0.8rem; font-weight: 400;">{subtext}</div>
+        <div class="kpi-subtext">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
 
-# 3. Load Trained Model
+# 3. Load Model & Setup Functions
 @st.cache_resource
 def load_trained_model():
     return joblib.load('models/solar_xgboost_model.pkl')
@@ -133,7 +417,6 @@ except Exception:
     st.error("❌ Model missing! Ensure 'python 2_train_model.py' has been run.")
     st.stop()
 
-# Helper Function: Fetch Real-Time Weather via Open-Meteo API
 def fetch_city_weather(city_name):
     try:
         geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}&count=1&language=en&format=json"
@@ -163,7 +446,6 @@ def fetch_city_weather(city_name):
     except Exception as e:
         return None, f"API Error: {str(e)}"
 
-# Helper Function: Generate PDF Client Report
 def generate_pdf_report(client_name, kw_rating, location, predicted_power, daily_kwh, annual_savings, payback_year, total_25yr_net, currency):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
@@ -230,7 +512,43 @@ def generate_pdf_report(client_name, kw_rating, location, predicted_power, daily
     buffer.seek(0)
     return buffer
 
-# 4. App Title Header
+# Apply CSS for chosen theme
+apply_custom_ui(st.session_state.theme)
+plotly_template = "plotly_white" if st.session_state.theme == "Light Mode" else "plotly_dark"
+chart_text_color = "#0f172a" if st.session_state.theme == "Light Mode" else "#f8fafc"
+axis_line_color = "#475569" if st.session_state.theme == "Light Mode" else "#cbd5e1"
+
+# 4. Integrated Top Navbar Header
+with st.container():
+    nav_col1, nav_col2, nav_col3 = st.columns([0.45, 0.35, 0.20])
+    
+    with nav_col1:
+        st.markdown("""
+        <div class="navbar-brand">
+            ☀️ <span>Solar AI Power Predictor</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with nav_col2:
+        st.markdown("""
+        <div class="navbar-links" style="width: 100%; justify-content: flex-end;">
+            <span class="navbar-badge">v2.4 XGBoost Engine</span>
+           <a href="https://www.github.com/mhuzaifa-04" target="_blank" class="footer-link">
+                          <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/mhuzaifa04" target="_blank" class="footer-link">
+           <i class="fa-brands fa-linkedin-in"></i>
+            </a></div>
+        """, unsafe_allow_html=True)
+
+    with nav_col3:
+        current_mode = st.session_state.theme
+        btn_label = "🌙 Dark Mode" if current_mode == "Light Mode" else "☀️ Light Mode"
+        
+        if st.button(btn_label, key="nav_theme_switcher"):
+            st.session_state.theme = "Dark Mode" if current_mode == "Light Mode" else "Light Mode"
+            st.rerun()
+
 st.title("☀️ Solar AI Intelligence & Financial Forecasting")
 st.caption("Powered by XGBoost Machine Learning Engine")
 
@@ -273,28 +591,6 @@ with st.sidebar:
     currency = st.selectbox("Currency Unit", ["$", "₹", "€", "£"], index=1)
     tariff_rate = st.number_input(f"Utility Tariff ({currency}/kWh)", min_value=0.01, value=8.0 if currency=="₹" else 0.15, step=0.5)
 
-    # --- AUTHOR & SOCIAL LINKS ---
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; padding: 0.5rem 0;">
-        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 500;">
-            Developed by <span style="color: #6366f1; font-weight: 700;">Mohammad Huzaifa</span> ✨
-        </p>
-        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 0.6rem;">
-            <a href="https://www.linkedin.com/in/mhuzaifa04" target="_blank" style="text-decoration: none;">
-                <span style="background: rgba(99, 102, 241, 0.15); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
-                    💼 LinkedIn
-                </span>
-            </a>
-            <a href="https://github.com/mhuzaifa-04" target="_blank" style="text-decoration: none;">
-                <span style="background: rgba(255, 255, 255, 0.08); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
-                    🐙 GitHub
-                </span>
-            </a>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
 # 6. Model Prediction & Computations
 temp_diff = mod_temp - amb_temp
 input_features = pd.DataFrame({
@@ -311,7 +607,7 @@ estimated_daily_kwh = (predicted_power / 1000.0) * 6.0
 daily_savings = estimated_daily_kwh * tariff_rate
 annual_savings = daily_savings * 365.0
 
-# Pre-calculate 25-Year financial data
+# Financial Calculations
 system_cost_default = 250000 if currency == "₹" else 5000
 degradation_rate_default = 0.005
 years = np.arange(1, 26)
@@ -341,7 +637,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 with tab1:
     col1, col2, col3 = st.columns(3)
     with col1:
-        render_kpi_card("Predicted AC Power", f"{predicted_power:.2f} kW", "Peak Output Generation", "#FFB800")
+        render_kpi_card("Predicted AC Power", f"{predicted_power:.2f} kW", "Peak Output Generation", "#D97706" if st.session_state.theme == "Light Mode" else "#FFB800")
     with col2:
         render_kpi_card("Est. Daily Savings", f"{currency}{daily_savings:.2f}", "Based on local tariff", "#10b981")
     with col3:
@@ -358,15 +654,33 @@ with tab1:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=hours, y=hourly_curve, mode='lines+markers', name='AC Power Output',
-        fill='tozeroy', fillcolor='rgba(255, 184, 0, 0.2)', line=dict(color='#FFB800', width=3)
+        fill='tozeroy', fillcolor='rgba(217, 119, 6, 0.2)' if st.session_state.theme == "Light Mode" else 'rgba(255, 184, 0, 0.2)',
+        line=dict(color='#D97706' if st.session_state.theme == "Light Mode" else '#FFB800', width=3)
     ))
     fig.update_layout(
-        xaxis=dict(title="Hour of Day", tickmode='linear', tick0=0, dtick=2),
-        yaxis=dict(title="AC Power Output (kW)"),
-        template="plotly_dark", height=380, margin=dict(l=20, r=20, t=30, b=20),
+        font=dict(color=chart_text_color),
+        xaxis=dict(
+            title="Hour of Day",
+            tickmode='linear',
+            tick0=0,
+            dtick=2,
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        yaxis=dict(
+            title="AC Power Output (kW)",
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        template=plotly_template, height=380, margin=dict(l=20, r=20, t=30, b=20),
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
     st.plotly_chart(fig, use_container_width=True)
+
 
 with tab2:
     st.subheader("🌲 Feature Importance Analysis")
@@ -376,12 +690,44 @@ with tab2:
         'Importance': importances
     }).sort_values(by='Importance', ascending=True)
 
+    # Dynamic text color based on active session theme
+    chart_text_color = "#0f172a" if st.session_state.theme == "Light Mode" else "#f8fafc"
+
+    # Format values as percentages for display labels
+    text_labels = [f"{v * 100:.2f}%" if v > 0.0001 else "<0.01%" for v in features_df['Importance']]
+
     feat_fig = go.Figure(go.Bar(
-        x=features_df['Importance'], y=features_df['Feature'], orientation='h', marker=dict(color='#6366f1')
+        x=features_df['Importance'], 
+        y=features_df['Feature'], 
+        orientation='h', 
+        text=text_labels,
+        textposition='outside',
+        textfont=dict(color=chart_text_color),
+        marker=dict(color='#6366f1')
     ))
+    
     feat_fig.update_layout(
-        template="plotly_dark", height=350, xaxis_title="Relative Feature Importance Weight",
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
+        template=plotly_template, 
+        height=380,
+        font=dict(color=chart_text_color),
+        xaxis_title="Relative Feature Importance Weight (Log Scale)",
+        xaxis=dict(
+            type="log",
+            dtick=1,
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        yaxis=dict(
+            tickfont=dict(color=chart_text_color, size=12),
+            title_font=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        margin=dict(r=60),
+        paper_bgcolor='rgba(0,0,0,0)', 
+        plot_bgcolor='rgba(0,0,0,0)'
     )
     st.plotly_chart(feat_fig, use_container_width=True)
 
@@ -422,7 +768,7 @@ with tab4:
 
     col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
     with col_kpi1:
-        render_kpi_card("Break-Even Period", f"{payback_year_dynamic} Years" if payback_year_dynamic else "25+ Years", "Estimated payback time", "#00E5FF")
+        render_kpi_card("Break-Even Period", f"{payback_year_dynamic} Years" if payback_year_dynamic else "25+ Years", "Estimated payback time", "#0284c7" if st.session_state.theme == "Light Mode" else "#00E5FF")
     with col_kpi2:
         render_kpi_card("Net 25-Year Profit", f"{currency}{yearly_cashflow[-1]:,.2f}", "Lifetime net return", "#10b981")
     with col_kpi3:
@@ -430,11 +776,28 @@ with tab4:
         render_kpi_card("25-Year ROI", f"{roi_percentage:.1f}%", "Return on investment", "#6366f1")
 
     roi_fig = go.Figure()
-    roi_fig.add_trace(go.Scatter(x=years, y=yearly_cashflow, mode='lines+markers', name='Cumulative Cash Flow', line=dict(color='#00E5FF', width=3)))
+    roi_fig.add_trace(go.Scatter(x=years, y=yearly_cashflow, mode='lines+markers', name='Cumulative Cash Flow', line=dict(color='#0284c7' if st.session_state.theme == "Light Mode" else '#00E5FF', width=3)))
     roi_fig.add_hline(y=0, line_dash="dash", line_color="red", annotation_text="Break-Even Point ($0)")
     roi_fig.update_layout(
-        title="25-Year Cumulative Financial Cash Flow", xaxis=dict(title="Year of Operation", tickmode='linear', dtick=2),
-        yaxis=dict(title=f"Net Cumulative Cash Flow ({currency})"), template="plotly_dark", height=380,
+        title="25-Year Cumulative Financial Cash Flow",
+        font=dict(color=chart_text_color),
+        xaxis=dict(
+            title="Year of Operation",
+            tickmode='linear',
+            dtick=2,
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        yaxis=dict(
+            title=f"Net Cumulative Cash Flow ({currency})",
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        template=plotly_template, height=380,
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
     st.plotly_chart(roi_fig, use_container_width=True)
@@ -488,12 +851,28 @@ with tab5:
         render_kpi_card("Net Daily Utility Bill", f"{currency}{daily_net_bill:.2f}", "Net cost after export credit", status_color)
 
     bat_fig = go.Figure()
-    bat_fig.add_trace(go.Scatter(x=hours, y=solar_gen, mode='lines', name='Solar Gen (kW)', line=dict(color='#FFB800', width=2)))
+    bat_fig.add_trace(go.Scatter(x=hours, y=solar_gen, mode='lines', name='Solar Gen (kW)', line=dict(color='#D97706' if st.session_state.theme == "Light Mode" else '#FFB800', width=2)))
     bat_fig.add_trace(go.Scatter(x=hours, y=household_demand, mode='lines', name='Household Demand (kW)', line=dict(color='#ef4444', width=2, dash='dash')))
-    bat_fig.add_trace(go.Scatter(x=hours, y=battery_charge_state, mode='lines', name='Battery State of Charge (kWh)', line=dict(color='#00E5FF', width=3)))
+    bat_fig.add_trace(go.Scatter(x=hours, y=battery_charge_state, mode='lines', name='Battery State of Charge (kWh)', line=dict(color='#0284c7' if st.session_state.theme == "Light Mode" else '#00E5FF', width=3)))
     bat_fig.update_layout(
-        xaxis=dict(title="Hour of Day", tickmode='linear', dtick=2), yaxis=dict(title="Energy (kW / kWh)"), 
-        template="plotly_dark", height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
+        font=dict(color=chart_text_color),
+        xaxis=dict(
+            title="Hour of Day",
+            tickmode='linear',
+            dtick=2,
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        yaxis=dict(
+            title="Energy (kW / kWh)",
+            title_font=dict(color=chart_text_color),
+            tickfont=dict(color=chart_text_color),
+            linecolor=axis_line_color,
+            gridcolor='rgba(148, 163, 184, 0.3)'
+        ),
+        template=plotly_template, height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
     st.plotly_chart(bat_fig, use_container_width=True)
 
@@ -527,3 +906,31 @@ with tab6:
             file_name=f"Solar_Proposal_{client_name.replace(' ', '_')}.pdf",
             mime="application/pdf"
         )
+
+# 8. Main Footer (Placed outside sidebar and tabs)
+st.markdown(f"""
+<div class="custom-footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            ☀️ <span>Solar AI Power Predictor</span>
+        </div>
+        <p class="footer-tagline">Advanced XGBoost ML yield & financial optimization platform.</p>
+        <div class="footer-links">
+            <a href="https://www.github.com/mhuzaifa-04" target="_blank" class="footer-link">
+                          <i class="fa-brands fa-github"></i> 
+            </a>
+            <span class="footer-dot">•</span>
+            <a href="https://www.linkedin.com/in/mhuzaifa04" target="_blank" class="footer-link">
+           <i class="fa-brands fa-linkedin-in"></i> 
+            </a>
+            <span class="footer-dot">•</span>
+            <a href="mailto:support@example.com" class="footer-link">
+                <i class="fa-solid fa-envelope"></i> 
+            </a>
+        </div>
+        <div class="footer-bottom">
+            Developed by <strong>Mohammad Huzaifa</strong> | © 2026 Solar AI Pro
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
